@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.CityInfoVO" alias="CityInfoVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.CityTransportVO" alias="CityTransportVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.CityVO" alias="CityVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.CityWeatherVO" alias="CityWeatherVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.OneToOneAskVO" alias="OneToOneAskVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ReviewLikeVO" alias="ReviewLikeVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ReviewReplyVO" alias="ReviewReplyVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ReviewVO" alias="ReviewVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ScheduleContentVO" alias="ScheduleContentVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ScheduleLikeVO" alias="ScheduleLikeVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ScheduleReplyVO" alias="ScheduleReplyVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.ScheduleVO" alias="ScheduleVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.UserVO" alias="UserVO"/>
+        <typeAlias type="com.liveamonth.liveamonth.entity.vo.NoticeVO" alias="NoticeVO"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mybatis/mapper/SignMapper.xml"/>
+        <mapper resource="mybatis/mapper/ReviewMapper.xml"/>
+        <mapper resource="mybatis/mapper/CityMapper.xml"/>
+        <mapper resource="mybatis/mapper/MyPageMapper.xml"/>
+        <mapper resource="mybatis/mapper/ScheduleMapper.xml"/>
+        <mapper resource="mybatis/mapper/NoticeMapper.xml"/>
+    </mappers>
+</configuration>

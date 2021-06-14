@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "\u0095spring.mvc.view.prefix",
+    "type": "java.lang.String",
+    "description": "A description for '\u0095spring.mvc.view.prefix'"
+  },
+  {
+    "name": "\u0085spring.mvc.view.suffix",
+    "type": "java.lang.String",
+    "description": "A description for '\u0085spring.mvc.view.suffix'"
+  },
+  {
+    "name": "mail",
+    "type": "java.lang.String",
+    "description": "A description for 'mail'"
+  }
+]}

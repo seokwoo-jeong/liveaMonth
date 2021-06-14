@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.liveamonth.liveamonth.model.mapper.cityInfoMapper.CityMapper">
+    <resultMap type="CityInfoVO" id="cityInfoList">
+        <result column="cityInfoCategory" property="cityInfoCategory"/>
+        <result column="cityInfoDesc" property="cityInfoDesc"/>
+        <result column="cityInfoImage" property="cityInfoImage"/>
+        <association property="cityVO" javaType="CityVO">
+            <id column="cityNO" property="cityNO"/>
+            <result column="cityName" property="cityName"/>
+        </association>
+    </resultMap>
+
+    <select id="getCityInfoList" parameterType = "String" resultMap="cityInfoList">
+        select city.cityNo, cityName,cityInfoCategory, cityInfoDesc, cityInfoImage
+        from city, cityInfo
+        where city.cityNO = cityInfo.cityNO
+          and cityInfoCategory=#{cityInfoCategory}
+          and cityName = #{cityName};
+    </select>
+
+
+    <select id="getCityInfoListByCategory" parameterType = "String" resultMap="cityInfoList">
+        SELECT * FROM cityInfo, city
+        WHERE city.cityNO = cityInfo.cityNO
+        and cityInfoCategory=#{cityInfoCategory};
+    </select>
+
+
+    <select id="getCityInfoNameList" resultType="String">
+        SELECT cityName FROM city;
+    </select>
+
+    <resultMap type="CityWeatherVO" id="cityWeatherList">
+        <result column="cityWeatherMonth" property="cityWeatherMonth"/>
+        <result column="cityWeatherMaxTemp" property="cityWeatherMaxTemp"/>
+        <result column="cityWeatherMinTemp" property="cityWeatherMinTemp"/>
+        <result column="cityWeatherAVGTemp" property="cityWeatherAVGTemp"/>
+        <association property="cityVO" javaType="CityVO">
+            <id column="cityNO" property="cityNO"/>
+            <result column="cityName" property="cityName"/>
+        </association>
+    </resultMap>
+
+    <select id="getCityWeatherList" parameterType = "String" resultMap="cityWeatherList">
+        SELECT cityWeatherMonth, cityWeatherMaxTemp, cityWeatherMinTemp, cityWeatherAVGTemp, city.cityName from city, cityWeather
+        where city.cityNO = cityWeather.cityNO
+        and cityName = #{cityName};
+    </select>
+
+    <resultMap type="CityTransportVO" id="cityTransportList">
+        <result column="cityTransportCategory" property="cityTransportCategory"/>
+        <result column="cityStationCount" property="cityStationCount"/>
+        <association property="cityVO" javaType="CityVO">
+            <id column="cityNO" property="cityNO"/>
+            <result column="cityName" property="cityName"/>
+        </association>
+    </resultMap>
+    <select id="getCityTransportList" parameterType = "String" resultMap="cityTransportList">
+        SELECT cityTransportCategory, cityStationCount, city.cityName from city, cityTransport
+        where city.cityNO = cityTransport.cityNO
+        and cityName = #{cityName};
+    </select>
+
+    <select id="getAVGTempList" parameterType="int" resultType="CityWeatherVO">
+        SELECT * from cityWeather,city where cityWeather.cityNO = city.cityNO and cityWeatherMonth=#{month}
+    </select>
+
+</mapper>

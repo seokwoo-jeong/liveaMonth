@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.liveamonth.liveamonth.model.mapper.scheduleMapper.ScheduleMapper">
+	<!-- select -->
+	<select id="beforeScheduleAddSearch" parameterType="ScheduleContentVO" resultType="int">
+		select count(*) from scheduleContent where scheduleContentDate = #{scheduleContentDate}
+	</select>
+
+	<select id="scheduleContentList" parameterType="HashMap" resultType="ScheduleContentVO">
+		select * from scheduleContent where scheduleContent.scheduleNO = #{scheduleNO} AND scheduleContentDate &gt;= #{calendarDTO.dbStartDate} and scheduleContentDate &lt;= #{calendarDTO.dbEndDate} order by scheduleContentDate, scheduleContentNO
+	</select>
+
+	<select id="getLastScheduleContentNO" resultType="int">
+		select max(scheduleContentNO) from scheduleContent;
+	</select>
+
+	<select id = "getScheduleVO" parameterType="int" resultType = "ScheduleVO">
+		SELECT scheduleSubject FROM schedule where scheduleNO = #{scheduleNO};
+	</select>
+
+	<select id = "getScheduleReply" parameterType="int" resultType = "ScheduleReplyVO">
+		SELECT scheduleReplyDesc, scheduleReplyRefNO, scheduleNO FROM scheduleReply where scheduleReplyNO = #{scheduleReplyNO};
+	</select>
+
+	<resultMap type = "scheduleVO" id="scheduleVO">
+		<id column="scheduleNO" property="scheduleNO"/>
+		<result column="scheduleSubject" property="scheduleSubject"/>
+		<result column="scheduleStatus" property="scheduleStatus"/>
+		<result column="userNO" property="userNO"/>
+		<association property="cityVO" javaType="CityVO">
+			<id column="cityNO" property="cityNO"/>
+			<result column="cityName" property="cityName"/>
+		</association>
+	</resultMap>
+	<select id="getScheduleList" resultMap="scheduleVO" parameterType="int">
+		select * from schedule,city where userNO = #{userNO} and city.cityNO= schedule.cityNO;
+	</select>
+
+	<resultMap type = "java.util.HashMap" id="scheduleFilterAndOrder">
+		<result column="scheduleNO" property="scheduleNO"/>
+		<result column="scheduleSubject" property="scheduleSubject"/>
+		<result column="scheduleViewCount" property="scheduleViewCount"/>
+		<result column="scheduleLikeCount" property="scheduleLikeCount"/>
+		<association property="userVO" javaType="UserVO">
+			<id column="userNO" property="userNO"/>
+			<result column="userNickname" property="userNickname"/>
+			<result column="userAge" property="userAge"/>
+			<result column="userSex" property="userSex"/>
+		</association>
+		<association property="cityVO" javaType="CityVO">
+			<id column="cityNO" property="cityNO"/>
+			<result column="cityName" property="cityName"/>
+		</association>
+	</resultMap>
+ 	<select id="getOtherScheduleList" parameterType="java.util.HashMap" resultMap="scheduleFilterAndOrder">
+		select a.*, IF(isnull(scheduleLikeCount), 0, scheduleLikeCount) as scheduleLikeCount
+		from (
+		    select schedule.scheduleNO, scheduleViewCount, scheduleSubject, user.userNO, userNickname, userAge,userSex, city.cityNO, cityName
+			from schedule, user, city
+		    where schedule.userNO = user.userNO
+		    and schedule.cityNO = city.cityNO
+			and schedule.scheduleStatus = true
+		<if test="userAgeFilter==true">
+			and userAge between Year(curdate())-#{userAge}-9 and Year(curdate())-#{userAge}
+		</if>
+		<if test="userSexFilter==true">
+			and userSex = #{userSex}
+		</if>
+		<if test="cityNOFilter==true">
+			and city.cityNO = ${cityNO}+1
+		</if>
+			  ) as a
+		left join(
+			select scheduleLike.scheduleNO, count(scheduleLikeUserNO) as scheduleLikeCount
+			from schedule, scheduleLike
+			where schedule.scheduleNO = scheduleLike.scheduleNO
+			group by scheduleLike.scheduleNO
+			) as b
+		ON a.scheduleNO = b.scheduleNO
+		<choose>
+			<when test="orderBy == 'orderByView'">
+				ORDER BY scheduleViewCount desc
+			</when>
+			<when test="orderBy == 'orderByLiked'">
+				ORDER BY scheduleLikeCount desc
+			</when>
+			<otherwise>
+				ORDER BY scheduleNO desc
+			</otherwise>
+		</choose>
+		limit #{startNO}, #{displayPage};
+	</select>
+ 	<select id="getPopularScheduleListForMain" resultMap="scheduleFilterAndOrder">
+		select a.*, IF(isnull(scheduleLikeCount), 0, scheduleLikeCount) as scheduleLikeCount
+		from (
+		    select schedule.scheduleNO, scheduleViewCount, scheduleSubject, user.userNO, userNickname, userAge,userSex, city.cityNO, cityName
+			from schedule, user, city
+		    where schedule.userNO = user.userNO
+		    and schedule.cityNO = city.cityNO
+			and schedule.scheduleStatus = true) as a
+		left join(
+			select scheduleLike.scheduleNO, count(scheduleLikeUserNO) as scheduleLikeCount
+			from schedule, scheduleLike
+			where schedule.scheduleNO = scheduleLike.scheduleNO
+			group by scheduleLike.scheduleNO
+			) as b
+		ON a.scheduleNO = b.scheduleNO
+		ORDER BY scheduleLikeCount desc
+		limit 0, 5;
+	</select>
+
+	<resultMap type = "java.util.HashMap" id="scheduleReplyAndNickname">
+		<id column="NO" property="NO"/>
+		<association property="userVO" javaType="userVO">
+			<result column="userNickname" property="userNickname"/>
+			<result column="userImage" property="userImage"/>
+		</association>
+		<association property="scheduleReply" javaType="ScheduleReplyVO">
+			<id column="scheduleReplyNO" property="scheduleReplyNO"/>
+			<result column="scheduleReplyDesc" property="scheduleReplyDesc"/>
+			<result column="scheduleReplyDate" property="scheduleReplyDate"/>
+			<result column="scheduleReplyRefNO" property="scheduleReplyRefNO"/>
+			<result column="userNO" property="userNO"/>
+			<result column="scheduleNO" property="scheduleNO"/>
+		</association>
+	</resultMap>
+	<select id="getScheduleReplyList" parameterType="java.util.HashMap" resultMap="scheduleReplyAndNickname">
+		select @rownum:=@rownum+1 as NO, sortScheduleReply.* from
+			(select IF(scheduleReplyRefNO >= 0, scheduleReplyRefNO, scheduleReplyNO) as sortScheduleReplyNO, scheduleReply.*, userNickName,userImage
+				from scheduleReply, user where scheduleReply.userNO = user.userNO AND scheduleNO= #{scheduleNO} order by sortScheduleReplyNO, scheduleReplyNO) sortScheduleReply,
+		   	(select @rownum:=#{startNO})TMP
+		limit #{startNO}, #{displayPage};
+	</select>
+	<select id="getOtherScheduleCount" parameterType="java.util.HashMap" resultType="int">
+		select count(schedule.scheduleNO)
+		from schedule
+		left join user on schedule.userNO = user.userNO
+		left join city on schedule.cityNO = city.cityNO
+		where schedule.scheduleStatus = true
+		<if test="userAgeFilter==true">
+			and userAge between Year(curdate())-#{userAge}-9 and Year(curdate())-#{userAge}
+		</if>
+		<if test="userSexFilter==true">
+			and userSex = #{userSex}
+		</if>
+		<if test="cityNOFilter==true">
+			and city.cityNO = ${cityNO}+1
+		</if>
+	</select>
+	<select id="getManyContentsMonth" parameterType="int" resultType="String">
+		select MONTH(scheduleContentDate)-1
+		from scheduleContent
+		where scheduleNO=#{scheduleNO}
+		group by MONTH(scheduleContentDate)
+		order by count(scheduleContentDate) desc limit 1;
+	</select>
+	<select id="getManyContentsYear" parameterType="int" resultType="String">
+		select YEAR(scheduleContentDate)
+		from scheduleContent
+		where scheduleNO=#{scheduleNO}
+		group by YEAR(scheduleContentDate)
+		order by count(scheduleContentDate) desc limit 1;
+	</select>
+	<select id="getScheduleReplyCount" parameterType="int" resultType="int">
+		select count(scheduleReplyNO) as count from scheduleReply where scheduleNO = #{scheduleNO};
+	</select>
+
+	<select id="getScheduleLikeStatus" parameterType="ScheduleLikeVO" resultType="int">
+		select EXISTS (select * from scheduleLike where scheduleNO = #{scheduleNO} and scheduleLikeUserNO =  #{scheduleLikeUserNO}) as success;
+	</select>
+
+	<select id ="getScheduleLikeCount" parameterType="int" resultType="int">
+		select count(scheduleNO) as count from scheduleLike where scheduleNO = #{scheduleNO};
+	</select>
+
+	<resultMap type = "java.util.HashMap" id="scheduleAndLikeCount">
+		<id column="scheduleNO" property="scheduleNO"/>
+		<result column="scheduleSubject" property="scheduleSubject"/>
+		<result column="scheduleViewCount" property="scheduleViewCount"/>
+		<result column="likeCount" property="likeCount"/>
+		<association property="userVO" javaType="UserVO">
+			<id column="userNO" property="userNO"/>
+			<result column="userNickname" property="userNickname"/>
+			<result column="userImage" property="userImage"/>
+			<result column="userAge" property="userAge"/>
+			<result column="userSex" property="userSex"/>
+			<result column="userEmail" property="userEmail"/>
+		</association>
+		<association property="cityVO" javaType="CityVO">
+			<id column="cityNO" property="cityNO"/>
+			<result column="cityName" property="cityName"/>
+		</association>
+	</resultMap>
+	<select id ="getScheduleAndLikeCount" parameterType="int" resultMap="scheduleAndLikeCount">
+		select schedule.scheduleNO,schedule.scheduleSubject, scheduleViewCount, count(scheduleLikeUserNO) as likeCount, user.*, city.*
+		from schedule
+		    left join scheduleLike on schedule.scheduleNO = scheduleLike.scheduleNO
+			left join user on schedule.userNO = user.userNO
+			left join city on city.cityNO = schedule.cityNO
+		where schedule.scheduleNO = #{scheduleNO} group by schedule.scheduleNO;
+	</select>
+
+	<select id="getScheduleDurationPay" parameterType="HashMap" resultType="int">
+		select IFNULL(sum(scheduleContentCost),0) from scheduleContent where scheduleNO = #{scheduleNO} and scheduleContentDate between #{schedulePayStartDay} and #{schedulePayFinishDay};
+	</select>
+
+	<resultMap type="java.util.HashMap" id="scheduleVOAndReplyCount">
+		<id column="scheduleVO" property="scheduleVO"/>
+		<result column="userNickName" property="userNickName"/>
+		<result column="scheduleReplyCount" property="replyCount"/>
+		<result column="scheduleLikeCount" property="scheduleLikeCount"/>
+		<result column="scheduleReplyNO" property="scheduleReplyNO"/>
+	</resultMap>
+	<select id="getMyScheduleList" parameterType="String" resultMap="scheduleVOAndReplyCount">
+		select @rownum:=@rownum+1 as NO, scheduleData.*
+		from
+		(select schedule.scheduleNO,scheduleSubject,scheduleViewCount,scheduleReply.scheduleReplyCount,scheduleLike.scheduleLikeCount,scheduleReplyContent.scheduleReplyNO
+		from schedule
+		LEFT JOIN (select scheduleNO, count(*)as scheduleReplyCount from scheduleReply group by scheduleNO) as
+		scheduleReply ON schedule.scheduleNO = scheduleReply.scheduleNO
+		LEFT JOIN (select scheduleNO ,count(*)as scheduleLikeCount from scheduleLike group by scheduleNO) as
+		scheduleLike ON schedule.scheduleNO = scheduleLike.scheduleNO
+		LEFT JOIN ( select scheduleNO, scheduleReplyDesc, scheduleReply.userNO, userNickName,scheduleReplyNO from
+		scheduleReply,user
+		where scheduleReply.userNO = user.userNO) as scheduleReplyContent ON schedule.scheduleNO =
+		scheduleReplyContent.scheduleNO
+		<choose>
+			<when test="manageScheduleCategory == 'writeScheduleReply'">
+				where scheduleReplyContent.userNo = #{userNO}
+			</when>
+			<otherwise>
+				where schedule.userNO = #{userNO}
+			</otherwise>
+		</choose>
+		group by schedule.scheduleNO
+		order by schedule.scheduleNO desc) as scheduleData,
+		(select @rownum := #{startNO}) TMP
+		limit #{startNO}, #{displayPage};
+	</select>
+
+	<select id="getScheduleWriterNO" parameterType="int" resultType="int">
+		select userNO from schedule where scheduleNO = #{scheduleNO};
+	</select>
+
+	<!-- delete -->
+	<delete id="deleteScheduleContent" parameterType="int">
+		delete from scheduleContent where scheduleContentNO = #{scheduleContentNO}
+	</delete>
+
+	<delete id="deleteSchedule" parameterType="int">
+		delete from schedule where scheduleNO = #{scheduleNO}
+	</delete>
+
+	<delete id="deleteScheduleReply" parameterType="int">
+		delete from scheduleReply where scheduleReplyNO = #{scheduleReplyNO}
+	</delete>
+
+	<delete id="deleteScheduleLike" parameterType="com.liveamonth.liveamonth.entity.vo.ScheduleLikeVO">
+		delete from scheduleLike where scheduleNO = #{scheduleNO} AND scheduleLikeUserNO = #{scheduleLikeUserNO};
+	</delete>
+
+	<delete id="deleteScheduleList" parameterType="java.util.HashMap">
+		delete
+		<choose>
+			<when test="manageScheduleCategory == 'writeScheduleReply'">
+				from scheduleReply where scheduleReplyNO in
+				<foreach collection="scheduleNO_OR_scheduleReplyNOList" item="scheduleReplyNO" open="(" close=")" separator=",">
+					#{scheduleReplyNO}
+				</foreach>
+			</when>
+
+			<otherwise>
+				from schedule
+				where scheduleNO in
+				<foreach collection="scheduleNO_OR_scheduleReplyNOList" item="scheduleNO" open="(" close=")" separator=",">
+					#{scheduleNO}
+				</foreach>
+			</otherwise>
+		</choose>
+	</delete>
+
+	<!-- insert -->
+	<insert id="addSchedule" parameterType="java.util.HashMap">
+		insert into schedule values(#{scheduleNO}, #{scheduleSubject}, #{scheduleStatus},#{scheduleViewCount},#{userNO},#{cityNO})
+	</insert>
+
+	<insert id="addScheduleContent" parameterType="ScheduleContentVO">
+		insert into scheduleContent values (#{scheduleContentNO}, #{scheduleContentSubject}, #{scheduleContentDesc}, CONVERT_TZ(#{scheduleContentDate},'+00:00','+09:00'), #{scheduleContentCost}, #{scheduleNO})
+	</insert>
+
+	<insert id="addScheduleReplyVO" parameterType="ScheduleReplyVO" useGeneratedKeys="true" keyProperty="scheduleReplyNO">
+		insert into scheduleReply values (#{scheduleReplyNO}, #{scheduleReplyDesc}, CONVERT_TZ(#{scheduleReplyDate},'+00:00','+09:00'),
+		<choose>
+			<when test = "scheduleReplyRefNO == 0">
+				null
+			</when>
+			<otherwise>
+				#{scheduleReplyRefNO}
+			</otherwise>
+		</choose>
+		, #{userNO}, #{scheduleNO})
+	</insert>
+
+	<insert id="addScheduleLike" parameterType="ScheduleLikeVO">
+		insert into scheduleLike values (#{scheduleNO}, #{scheduleLikeUserNO})
+	</insert>
+
+	<!-- update -->
+	<!-- 스케줄 내용 수정 -->
+	<update id="modifyScheduleContent" parameterType="ScheduleContentVO">
+		update scheduleContent
+		set scheduleContentSubject = #{scheduleContentSubject}, scheduleContentDesc = #{scheduleContentDesc},
+		scheduleContentCost = #{scheduleContentCost}
+		where scheduleContentNO = #{scheduleContentNO}
+	</update>
+	<!-- 스케줄 수정 -->
+	<update id="modifySchedule" parameterType="java.util.HashMap">
+		update schedule
+		set scheduleSubject = #{scheduleSubject}, scheduleStatus = #{scheduleStatus}, cityNO = #{cityNO}
+		where scheduleNO = #{scheduleNO}
+	</update>
+
+	<update id="modifyScheduleReply" parameterType="ScheduleReplyVO">
+		update scheduleReply set scheduleReplyDesc = #{scheduleReplyDesc} where scheduleReplyNO = #{scheduleReplyNO}
+	</update>
+
+	<update id="increaseScheduleViewCount" parameterType="int">
+		update schedule set scheduleViewCount = scheduleViewCount + 1 where scheduleNO = #{scheduleNO};
+	</update>
+
+	<select id="getMyScheduleListCount" parameterType="String" resultType="int">
+		select
+		<choose>
+			<when test="manageScheduleCategory == 'writeScheduleReply'">
+				count(scheduleReplyNO) as count from scheduleReply where userNO = ${userNO}
+			</when>
+			<otherwise>
+				count(scheduleNO) as count from schedule where userNO = ${userNO}
+			</otherwise>
+		</choose>
+		;
+	</select>
+
+
+</mapper>

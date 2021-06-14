@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ 
+<mapper namespace="com.liveamonth.liveamonth.model.mapper.myPageMapper.MyPageMapper">
+    <select id="getUserInfo" parameterType = "String" resultType="UserVO">
+       SELECT * FROM user WHERE userID=#{userID}
+    </select>
+
+    <update id="modifyUserInfo" parameterType="UserVO">
+       UPDATE user SET userPassword=#{userPassword},userNickname=#{userNickname},userEmail=#{userEmail}
+       WHERE userID=#{userID}
+    </update>
+
+    <update id="modifyUserImg" parameterType="String">
+        UPDATE user SET userImage=#{saveName} WHERE userID=#{userID}
+    </update>
+
+    <delete id="dropUser" parameterType="String">
+        delete from user where userID = #{userID}
+    </delete>
+
+    <select id = "getOneToOneAskVOList" parameterType = "int" resultType="OneToOneAskVO">
+    	select * from oneToOneAsk where userNO = #{userNO};
+    </select>
+    
+    <select id="getLastOneToOneAskNO" resultType="int">
+      select max(oneToOneAskNO) from oneToOneAsk;
+    </select>
+    
+    <select id="findOneToOneAskVO" parameterType = "int" resultType="OneToOneAskVO">
+      select * from oneToOneAsk where oneToOneAskNO = #{oneToOneAskNO};
+    </select>
+    
+    <insert id = "addOneToOneAsk" parameterType="OneToOneAskVO">
+    	insert into oneToOneAsk 
+    	values(#{oneToOneAskNO}, #{oneToOneAskCategory}, #{oneToOneAskSubject}, #{oneToOneAskDesc}, CONVERT_TZ(#{oneToOneAskDate},'+00:00','+09:00'),
+    	      #{oneToOneAskImage},#{oneToOneAskUserEmail}, #{oneToOneAskReply}, #{userNO});
+    </insert>
+    
+	<delete id="deleteOneToOneAsk" parameterType="int">
+		delete from oneToOneAsk where oneToOneAskNO = #{oneToOneAskNO}
+	</delete>
+
+
+</mapper>

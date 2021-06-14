@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+ 
+<mapper namespace="com.liveamonth.liveamonth.model.mapper.signMapper.SignMapper">
+
+	<!-- insert-->
+	<insert id="insertUser" parameterType="UserVO">
+		<selectKey resultType = "int" keyProperty="userNO" order = "BEFORE">
+			select MAX(userNO)+1 from user
+		</selectKey>
+		insert into user
+		values(#{userNO},#{userID},#{userPassword},#{userName},#{userNickname},#{userEmail},#{userSex},#{userAge},#{userImage});
+	</insert>
+
+	<!-- select -->
+	<select id="getNaverUser" parameterType="String" resultType="UserVO">
+		select * from user where userID = #{naverID}
+	</select>
+
+	<select id="searchUserById" parameterType="String" resultType="UserVO">
+		select * from user where userID = #{userID}
+	</select>
+
+	<select id="checkSign" parameterType="HashMap" resultType="UserVO">
+		select * from user where userID = #{userID} and userPassword =
+		#{userPassword}
+	</select>
+
+	<select id="checkSign2" parameterType="HashMap" resultType="int">
+		select userNO from user where userID = #{userID} and userPassword = #{userPassword}
+	</select>
+
+	<select id="checkID" parameterType="String" resultType="String">
+		select userID from user where userID = #{userID}
+	</select>
+
+	<select id="checkNickName" parameterType="String"
+			resultType="String">
+		select userNickName from user where userNickName =
+		#{userNickName}
+	</select>
+
+	<select id="checkEmail" parameterType="String" resultType="String">
+		select userEmail from user where userEmail = #{userEmail}
+	</select>
+
+	<!-- IDFind -->
+	<select id="findID" parameterType="String" resultType="String">
+		select CONCAT(SUBSTR(userID, 1, 3), REPEAT('*', CHAR_LENGTH(userID) - 3))
+				   AS userID from user where userName = #{userName} and userEmail = #{userEmail}
+	</select>
+
+
+ 	<!-- PWFind -->
+	<select id="findPW" parameterType="String" resultType="String">
+		select userPassword from user where userID = #{userID} and userName = #{userName} and userEmail = #{userEmail}
+	</select>
+
+
+	<!-- 비밀번호 변경 -->
+	<update id="updatePW" parameterType="String">
+		update user set userPassword = #{password} where userID = #{userID}
+	</update>
+
+
+	<select id="checkNaverID" parameterType="String" resultType="String">
+		select IFNULL(userID, null) from user where userID = #{naverID}
+	</select>
+
+	<insert id="setNewNaverMember" parameterType="UserVO">
+		<selectKey resultType = "int" keyProperty="userNO" order = "BEFORE">
+			select MAX(userNO)+1 from user
+		</selectKey>
+		insert into user (userNO, userID, userName, userNickname, userEmail, userSex, userAge)
+		values (#{userNO}, #{userID}, #{userName}, #{userNickname}, #{userEmail}, #{userSex}, #{userAge})
+	</insert>
+
+	<update id ="updateNaverUser" parameterType="UserVO" >
+		UPDATE user SET userName = #{userName}, userNickname=#{userNickname},userEmail=#{userEmail},userSex=#{userSex},userAge=#{userAge}
+		WHERE userID=#{userID}
+	</update>
+	
+</mapper>

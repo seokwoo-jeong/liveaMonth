@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+    <!--    Main화면 Layout-->
+    <definition name="Main" template="/WEB-INF/tiles/template/MainTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="cityInfoSlide" value="/WEB-INF/views/mainView/MainCitySlide.jsp" />
+        <put-attribute name="mainPopularContents" value="/WEB-INF/views/mainView/MainPopularContents.jsp" />
+        <put-attribute name="mainSideBar" value="/WEB-INF/views/mainView/MainSideBar.jsp" />
+        <put-attribute name="cityInfoGrid" value="/WEB-INF/views/cityInfoView/CityInfoGrid.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+
+    <!--    기본 화면 Layout-->
+    <definition name="base" template="/WEB-INF/tiles/template/BaseTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="body" value=""/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+    <definition name="scheduleView/*" extends="base">
+        <put-attribute name="body" value="/WEB-INF/views/scheduleView/{1}.jsp" />
+    </definition>
+    <definition name="signView/*" extends="base">
+        <put-attribute name="body" value="/WEB-INF/views/signView/{1}.jsp" />
+    </definition>
+
+    <!--    CityInfo 화면 Layout-->
+    <definition name="City" template="/WEB-INF/tiles/template/CityTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="cityInfo" value="/WEB-INF/views/cityInfoView/CityInfo.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+        <definition name="cityInfoView/*" extends="City">
+            <put-attribute name="cityInfo" value="/WEB-INF/views/cityInfoView/{1}.jsp" />
+        </definition>
+
+    <!--    MyPage 화면 Layout-->
+    <definition name="MyPage" template="/WEB-INF/tiles/template/MyPageTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="myPageProfile" value="/WEB-INF/views/myPageView/MyPageProfile.jsp"/>
+        <put-attribute name="myPageSideBar" value="/WEB-INF/views/myPageView/MyPageSideBar.jsp"/>
+        <put-attribute name="myPageBody" value="/WEB-INF/views/myPageView/ReCheckPassword.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+    <definition name="myPageView/*" extends="MyPage">
+        <put-attribute name="myPageBody" value="/WEB-INF/views/myPageView/{1}.jsp"/>
+    </definition>
+
+    <!-- review 화면 Layout -->
+    <definition name="Review" template="/WEB-INF/tiles/template/ReviewTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="reviewHeader" value="/WEB-INF/views/reviewView/ReviewHeader.jsp"/>
+        <put-attribute name="reviewSideBar" value="/WEB-INF/views/reviewView/ReviewSideBar.jsp"/>
+        <put-attribute name="reviewBody" value="/WEB-INF/views/reviewView/DefaultReviewPage.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+    <definition name="reviewView/*" extends="Review">
+        <put-attribute name="reviewBody" value="/WEB-INF/views/reviewView/{1}.jsp"/>
+    </definition>
+
+    <!-- CustomerCenter 화면 Layout -->
+    <definition name="CustomerCenter" template="/WEB-INF/tiles/template/CustomerCenterTemplate.jsp">
+        <put-attribute name="header" value="/WEB-INF/views/incl/Header.jsp"/>
+        <put-attribute name="customerCenterSideBar" value="/WEB-INF/views/customerCenterView/CustomerCenterSideBar.jsp"/>
+        <put-attribute name="customerCenterBody" value="/WEB-INF/views/customerCenterView/Faq.jsp"/>
+        <put-attribute name="footer" value="/WEB-INF/views/incl/Footer.jsp"/>
+    </definition>
+    <definition name="customerCenterView/*" extends="CustomerCenter">
+        <put-attribute name="customerCenterBody" value="/WEB-INF/views/customerCenterView/{1}.jsp"/>
+    </definition>
+</tiles-definitions>

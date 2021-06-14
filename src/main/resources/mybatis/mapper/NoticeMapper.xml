@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.liveamonth.liveamonth.model.mapper.noticeMapper.NoticeMapper">
+
+    <resultMap type="NoticeVO" id="Notice">
+        <id column="noticeNO" property="noticeNO"/>
+        <result column="noticeDate" property="noticeDate"/>
+        <result column="userNO" property="userNO"/>
+        <result column="readStatus" property="readStatus"/>
+        <result column="reviewReplyNO" property="reviewReplyNO"/>
+        <result column="scheduleReplyNO" property="scheduleReplyNO"/>
+        <result column="reviewNO" property="reviewNO"/>
+        <result column="scheduleNO" property="scheduleNO"/>
+        <association property="senderVO" javaType="UserVO">
+            <id column="senderNO" property="userNO"/>
+            <result column="userNickname" property="userNickname"/>
+            <result column="userImage" property="userImage"/>
+        </association>
+    </resultMap>
+
+    <select id="getAllNotice" resultMap="Notice" parameterType="int">
+        select notice.noticeNO,
+               noticeDate,
+               notice.userNO,
+               senderNO,
+               readStatus,
+               reviewReplyNO,
+               scheduleReplyNO,
+               reviewNO,
+               scheduleNO,
+               userNickname,
+               userImage
+        from notice
+                 LEFT JOIN RRNotice ON notice.noticeNO = RRNotice.noticeNO
+                 LEFT JOIN SRNotice ON notice.noticeNO = SRNotice.noticeNO
+                 LEFT JOIN RLNotice ON notice.noticeNO = RLNotice.noticeNO
+                 LEFT JOIN SLNotice ON notice.noticeNO = SLNotice.noticeNO
+                 LEFT JOIN user ON notice.senderNO = user.userNO
+        WHERE notice.userNO = #{UserNO}
+        ORDER BY noticeDate desc
+        ;
+    </select>
+
+    <select id = "getNoticeCount" parameterType="int" resultType="int">
+        select Count(noticeNO) from notice where userNO = #{userNO} AND readStatus = 1;
+    </select>
+
+    <update id="updateReadStatus" parameterType="int">
+        UPDATE notice SET readStatus = false WHERE userNO = #{userNO} AND readStatus = true;
+    </update>
+
+    <insert id="addNotice" parameterType="NoticeVO" useGeneratedKeys="true" keyProperty="noticeNO">
+        INSERT INTO notice values(#{noticeNO}, CONVERT_TZ(#{noticeDate},'+00:00','+09:00'), #{userNO},#{senderVO.userNO},#{readStatus})
+    </insert>
+
+    <insert id="addRRNotice" parameterType="java.util.HashMap">
+        insert into RRNotice values(#{noticeNO}, #{reviewReplyNO});
+    </insert>
+
+    <insert id="addRLNotice" parameterType="java.util.HashMap">
+        insert into RLNotice values(#{noticeNO}, #{reviewNO});
+    </insert>
+
+    <insert id="addSRNotice" parameterType="java.util.HashMap">
+        insert into SRNotice values(#{noticeNO}, #{scheduleReplyNO});
+    </insert>
+
+    <insert id="addSLNotice" parameterType="java.util.HashMap">
+        insert into SLNotice values(#{noticeNO}, #{scheduleNO});
+    </insert>
+
+
+</mapper>
